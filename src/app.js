@@ -4,6 +4,9 @@ const { Band, Musician } = require("../models/index");
 const { db } = require("../db/connection");
 const port = 3000;
 
+app.use(express.json());
+app.use(express.urlencoded());
+
 //TODO: Create a GET /musicians route to return all musicians
 app.get("/musicians", async (request, response) => {
   const musicians = await Musician.findAll();
@@ -24,7 +27,6 @@ app.get("/musicians/:id", async (request, response) => {
 
 app.get("/bands", async (request, response) => {
   const bands = await Band.findAll();
-  console.log(bands);
   if (bands.length === 0) {
     response.status(404).send("Not found");
     return;
