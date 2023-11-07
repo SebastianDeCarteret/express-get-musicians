@@ -1,21 +1,23 @@
 // install dependencies
-const { execSync } = require("child_process");
-execSync("npm install");
-execSync("npm run seed");
+// const { execSync } = require("child_process");
+// execSync("npm install");
+// execSync("npm run seed");
 
 const request = require("supertest");
 const { db } = require("./db/connection");
 const { Musician } = require("./models/index");
 const app = require("./src/app");
-const { seedMusician } = require("./seedData");
+const { seedMusician, seedBand } = require("./seedData");
 const { syncSeed } = require("./seed");
 const { deserialize } = require("v8");
 
 describe("Musician API tests:", () => {
   beforeEach(async () => {
     await db.sync({ force: true });
+    await db.sync({ force: true });
     await syncSeed();
   });
+
   describe("./musicians endpoint:", () => {
     it("should return code: 200", async () => {
       const response = await request(app).get("/musicians");
@@ -51,6 +53,25 @@ describe("Musician API tests:", () => {
         expect(response.body.instrument).toEqual(
           seedMusician[index].instrument
         );
+      });
+    });
+  });
+
+  describe("./bands endpoint:", () => {
+    it("should return code: 200", async () => {
+      const response = await request(app).get("/bands");
+      expect(response.statusCode).toBe(200);
+    });
+    it("should return code: 404", async () => {
+      await db.sync({ force: true });
+      const response = await request(app).get("/bands");
+      expect(response.statusCode).toBe(404);
+    });
+    it("should return the correct values from the database compared to the seed", async () => {
+      const response = await request(app).get("/bands");
+      response.body.forEach((object, index) => {
+        expect(object.name).toEqual(seedBand[index].name);
+        expect(object.genre).toEqual(seedBand[index].genre);
       });
     });
   });

@@ -1,8 +1,7 @@
 const express = require("express");
 const app = express();
-const { Musician } = require("../models/index");
+const { Band, Musician } = require("../models/index");
 const { db } = require("../db/connection");
-
 const port = 3000;
 
 //TODO: Create a GET /musicians route to return all musicians
@@ -21,6 +20,16 @@ app.get("/musicians/:id", async (request, response) => {
     return;
   }
   response.json(musician).status(200);
+});
+
+app.get("/bands", async (request, response) => {
+  const bands = await Band.findAll();
+  console.log(bands);
+  if (bands.length === 0) {
+    response.status(404).send("Not found");
+    return;
+  }
+  response.json(bands).status(200);
 });
 
 module.exports = app;
