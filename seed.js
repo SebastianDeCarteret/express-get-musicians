@@ -4,9 +4,8 @@ const { seedMusician, seedBand } = require("./seedData");
 
 const syncSeed = async () => {
   await db.sync({ force: true });
-  seedMusician.map((musician) => Musician.create(musician));
-  seedBand.map((band) => Band.create(band));
+  await Promise.all(seedMusician.map((musician) => Musician.create(musician)));
+  await Promise.all(seedBand.map((band) => Band.create(band)));
 };
-//syncSeed();
 
 module.exports = { syncSeed };
