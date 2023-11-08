@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { Musician } = require("../models/index");
 
-router.use((req, res, next) => {
-  next();
-});
+// router.use((req, res, next) => {
+//   next();
+// });
 
 router.get("/", async (request, response) => {
   const musicians = await Musician.findAll();
