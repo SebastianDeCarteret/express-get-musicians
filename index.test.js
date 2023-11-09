@@ -28,7 +28,7 @@ describe("Musician API tests:", () => {
         expect(object.instrument).toEqual(seedMusician[index].instrument);
       });
     });
-    it("POST should add a new resturant when keys are not empty", async () => {
+    it("POST should add a new resturant when keys are less than 2 char or more than 20 char", async () => {
       const sendData = { name: "Japanese", instrument: "Bristol" };
       const response = await request(app).post("/musicians").send(sendData);
       const restaruantFound = await Musician.findByPk(4);
@@ -36,7 +36,7 @@ describe("Musician API tests:", () => {
       expect(restaruantFound.instrument).toEqual(sendData.instrument);
       expect(response.body.error).toBe(undefined);
     });
-    it("POST should return error when keys are empty", async () => {
+    it("POST should return error when keys are less than 2 char or more than 20 char", async () => {
       const sentData = { name: "", instrument: "" };
       const response = await request(app).post("/musicians").send(sentData);
       response.body.error.forEach((error, index) => {
@@ -71,6 +71,35 @@ describe("Musician API tests:", () => {
         );
       })
     );
+    it("PUT should return code: 200 if the data input is more than 2 char and less that 20 char", async () => {
+      const sentData = { name: "Jon Bon Jovi", instrument: "Guitar" };
+      const response = await request(app).put("/musicians/1").send(sentData);
+      expect(response.body.error).toBe(undefined);
+      expect(response.statusCode).toBe(200);
+    });
+    it("PUT should return error if the data input is less than 2 char", async () => {
+      const sentData = { name: "J", instrument: "G" };
+      const response = await request(app).put("/musicians/1").send(sentData);
+      response.body.error.forEach((error, index) => {
+        expect(error.path).toBe(Object.keys(sentData)[index]);
+        expect(error.value).toBe(Object.values(sentData)[index]);
+      });
+      //expect(response.body.error).toBe(undefined);
+      expect(response.statusCode).toBe(200);
+    });
+    it("PUT should return error if the data input is more than 20 char", async () => {
+      const sentData = {
+        name: "superfragalisticexpialidocious",
+        instrument: "superfragalisticexpialidocious",
+      };
+      const response = await request(app).put("/musicians/1").send(sentData);
+      response.body.error.forEach((error, index) => {
+        expect(error.path).toBe(Object.keys(sentData)[index]);
+        expect(error.value).toBe(Object.values(sentData)[index]);
+      });
+      //expect(response.body.error).toBe(undefined);
+      expect(response.statusCode).toBe(200);
+    });
   });
 
   describe("./bands endpoint:", () => {

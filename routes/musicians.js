@@ -15,7 +15,7 @@ router.get("/", async (request, response) => {
 });
 router.post(
   "/",
-  check(["name", "instrument"]).notEmpty(),
+  check(["name", "instrument"]).isLength({ min: 2, max: 20 }),
   async (request, response) => {
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
@@ -26,13 +26,22 @@ router.post(
     }
   }
 );
-router.put("/:id", async (request, response) => {
-  const musician = await Musician.findByPk(request.params.id);
-  await musician.update(request.body);
-  response
-    .status(200)
-    .send(`Updated musician with an id of: ${request.params.id}`);
-});
+router.put(
+  "/:id",
+  check(["name", "instrument"]).isLength({ min: 2, max: 20 }),
+  async (request, response) => {
+    const errors = validationResult(request);
+    if (!errors.isEmpty()) {
+      response.json({ error: errors.array() });
+    } else {
+      const musician = await Musician.findByPk(request.params.id);
+      await musician.update(request.body);
+      response
+        .status(200)
+        .send(`Updated musician with an id of: ${request.params.id}`);
+    }
+  }
+);
 router.delete("/:id", async (request, response) => {
   const musician = await Musician.findByPk(request.params.id);
   await musician.destroy(musician);
