@@ -1,19 +1,31 @@
 const express = require("express");
 const router = express.Router();
 const { Musician } = require("../models/index");
+const { check, validationResult } = require("express-validator");
 
 // router.use((req, res, next) => {
 //   next();
 // });
+router.use(express.json());
+router.use(express.urlencoded({ extended: true }));
 
 router.get("/", async (request, response) => {
   const musicians = await Musician.findAll();
   response.json(musicians).status(200);
 });
-router.post("/", async (request, response) => {
-  await Musician.create(request.body);
-  response.status(201).send("Added new musician");
-});
+router.post(
+  "/",
+  check(["name", "instrument"]).notEmpty(),
+  async (request, response) => {
+    const errors = validationResult(request);
+    if (!errors.isEmpty()) {
+      response.json({ error: errors.array() });
+    } else {
+      await Musician.create(request.body);
+      response.json(await Musician.findAll());
+    }
+  }
+);
 router.put("/:id", async (request, response) => {
   const musician = await Musician.findByPk(request.params.id);
   await musician.update(request.body);
